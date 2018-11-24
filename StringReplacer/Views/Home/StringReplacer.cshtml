@@ -1,0 +1,81 @@
+﻿@model StringReplacer.Models.StringReplacerViewModel
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="jumbotron">
+    <h1>STRING TURBO</h1>
+    <p class="lead">STRING REPLACER is free tool for developers in creating classes, repetitive codes and other encoding requirements</p>
+
+    <h2>What is String Turbo's main purpose?</h2>
+    <p class="lead">Ever had a day when you have to convert an sql table into a class but too many columns on it, and you're too busy(more lazy) to type?</p>
+    <p>If yes, you can just get the create script of a table and put it in a text file then we will generate the class for you!</p>
+
+    <p class="lead">Ever had a day when you have to code a mapper of an entity going to your class, and there are too many properties and you're too busy(more lazy) to type?</p>
+    <p>If yes, you can just send the file here and we will generate that repetitive code for you!</p>
+
+    <h2>Anything that is repetitive, we can repeat it for you in just few steps, and there will be no more long typing jobs, because you are not an encoder, you are a programmer!</h2>
+
+    <h5>Please enter your filepath input where your class/data is at e.g. C:\myclass.txt</h5>
+    <p>
+        @Html.TextBoxFor(m => m.FilePathInput, new { @class = "textboxecppage", @placeholder = "e.g. C:\\sqltable.txt" })
+
+    </p>
+    <h5>Please enter the string pattern e.g. public {0} {1} {get; set;} where {n} represents the dynamic data, in consecutive order</h5>
+    <h5>ex. {[Id]} {[bigint]} IDENTITY(1,1) NOT NULL will be converted to public long Id {get; set;}</h5>
+    <p>
+        @Html.TextBoxFor(m => m.StringMake, new { @class = "textboxecppage" })
+
+    </p>
+    <p> <button class="btn btn-default" id="generateString">RUN</button></p>
+</div>
+
+<script type="text/javascript">
+
+
+    $(function () {
+
+
+        $('#generateString').click(function () {
+           
+
+            var url = '@Url.Action("GenerateString", "Home")';
+
+
+        var data = {
+
+            FilePathInput: $("#FilePathInput").val(),
+            FilePathOutput: $("#FilePathOutput").val(),
+            StringMake: $("#StringMake").val(),
+
+            };
+
+            $.ajax({
+                url: url,
+                type: 'POST',
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify(data),
+                traditional: true,
+                dataType: 'json',
+                error: function () {
+                    alert("error");
+                }
+            }).done(function (data) {
+                if (data.success) {
+                    window.location.href = '/Home/GetFile/?key=' + data.key;
+
+                }
+                else {
+                    if (response.data.error !== undefined && response.data.error !== "") {
+                        alert("error");
+                    }
+                }
+            });
+        });
+
+
+    });
+</script>
+
