@@ -1,4 +1,5 @@
 ﻿using StringReplacer.Models;
+using StringReplacer.Service;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -18,7 +19,10 @@ namespace StringReplacer.Controllers
 
         public ActionResult StringReplacer()
         {
-            return View();
+            StringReplacerViewModel vm = new StringReplacerViewModel();
+            vm.IsDotNet = "C#";
+            vm.ReplacerType = 1;
+            return View(vm);
         }
 
         [HttpPost]
@@ -27,35 +31,15 @@ namespace StringReplacer.Controllers
             byte[] content = null;
             var key = Guid.NewGuid().ToString();
             var filename = string.Format("mystringreplacer.txt");
+            StringReplacerService stringReplacerService = new StringReplacerService();
+            //vm.ReplacerType  = 1;
+            vm.FilePathInput = @"C:\Users\dell\Desktop\stringReplacer\s.txt";
 
-            string[] lines = System.IO.File.ReadAllLines(vm.FilePathInput);
-            System.IO.Stream stream = new System.IO.MemoryStream();
-            StringBuilder sb = new StringBuilder();
-           
-            foreach (string line in lines)
-            {
+            content = stringReplacerService.ProcessString(vm);
 
-
-                var stringSPlit = line.Split(' ');
-                if (stringSPlit.Any() && stringSPlit[0] != null)
-                {
-                    
-                    var newL = stringSPlit[0].Replace("\t", "").Replace("[", "").Replace("]", "");
-                         
-                    string newString = "public string " +  newL + " { get; set; }";
-
-                    sb.AppendLine(newString);
-                }
-
-                   
-            }
-
-           content = Encoding.ASCII.GetBytes(sb.ToString());
-            
-           
             Session[key] = new Tuple<string, byte[]>(filename, content);
 
-            
+
             return Json(new { key, success = true });
         }
 
@@ -72,7 +56,7 @@ namespace StringReplacer.Controllers
             }
             catch (Exception e)
             {
-               
+
                 throw;
             }
         }

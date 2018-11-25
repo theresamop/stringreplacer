@@ -4,31 +4,56 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-
+<style>
+    input, textarea {
+        width: 400px;
+    }
+    
+</style>
 <div class="jumbotron">
-    <h1>STRING TURBO</h1>
+    <h1>STRING REPLACER</h1>
     <p class="lead">STRING REPLACER is free tool for developers in creating classes, repetitive codes and other encoding requirements</p>
 
     <h2>What is String Turbo's main purpose?</h2>
-    <p class="lead">Ever had a day when you have to convert an sql table into a class but too many columns on it, and you're too busy(more lazy) to type?</p>
-    <p>If yes, you can just get the create script of a table and put it in a text file then we will generate the class for you!</p>
+    <p class="lead">Ever had a day when you have to convert an sql table into a class but too many columns on it, and you're too busy(or lazy) to type?</p>
+    <p>If yes, you can just get the create script of a table and put it in a text file, send here then we will generate the class for you!</p>
 
-    <p class="lead">Ever had a day when you have to code a mapper of an entity going to your class, and there are too many properties and you're too busy(more lazy) to type?</p>
+    <p class="lead">Ever had a day when you have to code a mapper of an entity going to your class, and there are too many properties and you're too busy(or lazy) to type?</p>
     <p>If yes, you can just send the file here and we will generate that repetitive code for you!</p>
 
     <h2>Anything that is repetitive, we can repeat it for you in just few steps, and there will be no more long typing jobs, because you are not an encoder, you are a programmer!</h2>
 
-    <h5>Please enter your filepath input where your class/data is at e.g. C:\myclass.txt</h5>
-    <p>
-        @Html.TextBoxFor(m => m.FilePathInput, new { @class = "textboxecppage", @placeholder = "e.g. C:\\sqltable.txt" })
+    <div id="choiceParse">
+        <h5>Please choose a pre-made string pattern or choose "custom pattern" to make your own</h5>
+        <div>
+            @Html.DropDownListFor(model => model.ReplacerType, Model.ReplacerTypes.OrderBy(x => x.Text), new { })
+        </div>
+        <div>
+            @Html.RadioButtonFor(model => model.IsDotNet, "C#") @Html.Label("C#")  
+            @Html.RadioButtonFor(model => model.IsDotNet, "Java") @Html.Label("Java")
+        </div>
+        <h5>Please enter your filepath input where your class/data is at e.g. C:\myclass.txt</h5>
+        <p>
+            @Html.TextBoxFor(m => m.FilePathInput, new { @class = "textboxecppage", @placeholder = "e.g. C:\\sqltable.txt" })
 
-    </p>
-    <h5>Please enter the string pattern e.g. public {0} {1} {get; set;} where {n} represents the dynamic data, in consecutive order</h5>
-    <h5>ex. {[Id]} {[bigint]} IDENTITY(1,1) NOT NULL will be converted to public long Id {get; set;}</h5>
-    <p>
-        @Html.TextBoxFor(m => m.StringMake, new { @class = "textboxecppage" })
+        </p>
 
-    </p>
+    </div>
+    <div id="customParser" disabled="disabled">
+        <h5>Please enter the string dynamic input enclosed in a curly braces ({}) e.g. {[Id]} {[bigint]} IDENTITY(1,1) NOT NULL  where { } represents the dynamic data, in consecutive order synced with the string pattern</h5>
+        <h5>ex. {[Id]} {[bigint]} IDENTITY(1,1) NOT NULL  where Id=0 and bigint=1 will be the replacement text to the pattern set below</h5>
+        <p>
+            @Html.TextBoxFor(m => m.StringDynamicInput, new { @class = "textboxecppage" })
+
+        </p>
+
+        <h5>Please enter the string pattern e.g. public {0} {1} {get; set;} where {n} represents the dynamic data, in consecutive order</h5>
+        <h5>ex. [Id] [bigint] IDENTITY(1,1) NOT NULL  will be converted to public long Id {get; set;}</h5>
+        <p>
+            @Html.TextBoxFor(m => m.StringMake, new { @class = "textboxecppage" })
+
+        </p>
+    </div>
     <p> <button class="btn btn-default" id="generateString">RUN</button></p>
 </div>
 
@@ -49,7 +74,8 @@
             FilePathInput: $("#FilePathInput").val(),
             FilePathOutput: $("#FilePathOutput").val(),
             StringMake: $("#StringMake").val(),
-
+            ReplacerType: $("#ReplacerType").val(),
+            StringDynamicInput: $("#StringDynamicInput").val(),
             };
 
             $.ajax({
@@ -73,6 +99,35 @@
                     }
                 }
             });
+        });
+
+        $('#IsDotNet').change(function () {
+
+            if (this.value === "Java") {
+                alert("Java coming soon!");
+            }
+        });
+        
+
+
+        $('#ReplacerType').change(function () {
+            if ($('#ReplacerType').val() === "1") {
+                $('#customParser').attr("disabled", true);
+                $("#StringMake").val("public {0} {1} {{ get; set; }}");
+                $("#StringDynamicInput").val("{[Id]} {[bigint]} IDENTITY(1, 1) NOT NULL");
+
+                $("#StringMake").attr("disabled", true);
+                $("#StringDynamicInput").attr("disabled", true);
+            }
+            else {
+                $('#customParser').attr("disabled", false);
+               
+                $("#StringMake").val("");
+                $("#StringDynamicInput").val("");
+
+                $("#StringMake").attr("disabled", false);
+                $("#StringDynamicInput").attr("disabled", false);
+            }
         });
 
 
