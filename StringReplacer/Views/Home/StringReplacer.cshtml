@@ -14,11 +14,14 @@
     <h1>STRING REPLACER</h1>
     <p class="lead">STRING REPLACER is free tool for developers in creating classes, repetitive codes and other encoding requirements</p>
 
-    <h2>What is String Turbo's main purpose?</h2>
+    <h2>What is String REPLACER's main purpose?</h2>
     <p class="lead">Ever had a day when you have to convert an sql table into a class but too many columns on it, and you're too busy(or lazy) to type?</p>
-    <p>If yes, you can just get the create script of a table and put it in a text file, send here then we will generate the class for you!</p>
+    <p>If yes, you can just get the create script of a table and put it in a text file, send it here then we will generate the class for you!</p>
 
     <p class="lead">Ever had a day when you have to code a mapper of an entity going to your class, and there are too many properties and you're too busy(or lazy) to type?</p>
+    <p>If yes, you can just send the file here and we will generate that repetitive code for you!</p>
+
+    <p class="lead">Ever had a day when you have to code a line repeateadly but there's one field that is different and replace all will not cut it?</p>
     <p>If yes, you can just send the file here and we will generate that repetitive code for you!</p>
 
     <h2>Anything that is repetitive, we can repeat it for you in just few steps, and there will be no more long typing jobs, because you are not an encoder, you are a programmer!</h2>
@@ -29,7 +32,7 @@
             @Html.DropDownListFor(model => model.ReplacerType, Model.ReplacerTypes.OrderBy(x => x.Text), new { })
         </div>
         <div>
-            @Html.RadioButtonFor(model => model.IsDotNet, "C#") @Html.Label("C#")  
+            @Html.RadioButtonFor(model => model.IsDotNet, "C#") @Html.Label("C#")
             @Html.RadioButtonFor(model => model.IsDotNet, "Java") @Html.Label("Java")
         </div>
         <h5>Please enter your filepath input where your class/data is at e.g. C:\myclass.txt</h5>
@@ -37,7 +40,16 @@
             @Html.TextBoxFor(m => m.FilePathInput, new { @class = "textboxecppage", @placeholder = "e.g. C:\\sqltable.txt" })
 
         </p>
+        <h5>Please enter the splitter character </h5>
+        <p>
+            @Html.DropDownListFor(model => model.Splitter, Model.SplitterTypes.OrderBy(x => x.Text), new { })
 
+        </p>
+        <h5>Optional: Enter characters to remove inside the {} dynamic input, delimeted by comma(',') for each character.</h5>
+        <p>
+            @Html.TextBoxFor(m => m.CharsToRemove, new { @class = "textboxecppage", @placeholder = "e.g. [,] " })
+
+        </p>
     </div>
     <div id="customParser" disabled="disabled">
         <h5>Please enter the string dynamic input enclosed in a curly braces ({}) e.g. {[Id]} {[bigint]} IDENTITY(1,1) NOT NULL  where { } represents the dynamic data, in consecutive order synced with the string pattern</h5>
@@ -53,6 +65,9 @@
             @Html.TextBoxFor(m => m.StringMake, new { @class = "textboxecppage" })
 
         </p>
+        <h5>Optional: Do you want to convert the datatypes if there's any inside {} dynamic input?</h5>
+        <h5>ex. bigint to long | nvarchar to string etc.</h5>
+        @Html.CheckBoxFor(m => m.IsConvertDatatype, false)
     </div>
     <p> <button class="btn btn-default" id="generateString">RUN</button></p>
 </div>
@@ -62,6 +77,16 @@
 
     $(function () {
 
+        var setControls = function (settings, isEmptyField) {
+            $('#customParser').attr("disabled", settings);
+            $("#StringMake").val(isEmptyField? "" : "public {0} {1} {{ get; set; }}");
+            $("#StringDynamicInput").val(isEmptyField ? "" : "{[Id]} {[bigint]} IDENTITY(1, 1) NOT NULL");
+
+            $("#StringMake").attr("disabled", settings);
+            $("#StringDynamicInput").attr("disabled", settings);
+        };
+
+        setControls(true);
 
         $('#generateString').click(function () {
            
@@ -76,6 +101,9 @@
             StringMake: $("#StringMake").val(),
             ReplacerType: $("#ReplacerType").val(),
             StringDynamicInput: $("#StringDynamicInput").val(),
+            Splitter: $("#Splitter").val(),
+            CharsToRemove: $("#CharsToRemove").val(),
+            IsConvertDatatype: $("#IsConvertDatatype").val(),
             };
 
             $.ajax({
@@ -109,28 +137,30 @@
         });
         
 
+        $('#IsConvertDatatype').change(function (val) {
 
-        $('#ReplacerType').change(function () {
-            if ($('#ReplacerType').val() === "1") {
-                $('#customParser').attr("disabled", true);
-                $("#StringMake").val("public {0} {1} {{ get; set; }}");
-                $("#StringDynamicInput").val("{[Id]} {[bigint]} IDENTITY(1, 1) NOT NULL");
-
-                $("#StringMake").attr("disabled", true);
-                $("#StringDynamicInput").attr("disabled", true);
-            }
-            else {
-                $('#customParser').attr("disabled", false);
-               
-                $("#StringMake").val("");
-                $("#StringDynamicInput").val("");
-
-                $("#StringMake").attr("disabled", false);
-                $("#StringDynamicInput").attr("disabled", false);
+            if (val === "true") {
+                alert("Java coming soon!");
             }
         });
 
 
+        $('#ReplacerType').change(function () {
+            if ($('#ReplacerType').val() === "1") {
+                setControls(true);
+              
+            }
+            else {
+                $('#customParser').attr("disabled", false);
+
+
+                setControls(false, true);
+
+            }
+        });
+
+
+       
     });
 </script>
 

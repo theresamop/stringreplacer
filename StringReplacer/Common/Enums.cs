@@ -10,6 +10,7 @@ namespace StringReplacer.Common
         public enum ReplacerType
         {
             SQLTableToCSClass = 1,
+            CustomString = 2,
         }
 
     }
@@ -24,6 +25,9 @@ namespace StringReplacer.Common
         public const string Bool = "bool";
         public const string String = "string";
         public const string datetime = "DateTime";
+        public const string Decimal = "decimal";
+        public const string Float = "float";
+        public const string Double = "double";
     }
 
     public static class SQLDataTypeStrings
@@ -36,5 +40,7 @@ namespace StringReplacer.Common
         public const string unique = "uniqueidentitifer";
         public const string bit = "bit";
         public const string Int = "int";
+        public const string Decimal = "decimal";
+        public const string Float = "float";
     }
 }

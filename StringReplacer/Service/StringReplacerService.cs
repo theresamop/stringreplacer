@@ -23,7 +23,10 @@ namespace StringReplacer.Service
             {
                 sbuilder = BuilDSQLTableToCSClass(vm, lines);
             }
-
+            else if ((int)ReplacerType.CustomString == vm.ReplacerType)
+            {
+                sbuilder = BuildCustomString(vm, lines);
+            }
             return Encoding.ASCII.GetBytes(sbuilder);
 
         }
@@ -57,9 +60,65 @@ namespace StringReplacer.Service
             return stringBuilder.ToString();
         }
 
+
+        private string BuildCustomString(StringReplacerViewModel vm, string[] lines)
+        {
+            StringBuilder stringBuilder = new StringBuilder();
+            //vm.{Id} = post.{Id}
+            List<int> dynamicInputIndexes = new List<int>();
+
+            //get dynamic Input accdg to user input
+            var splittedSample = vm.StringDynamicInput.Split(Convert.ToChar(vm.Splitter));
+            var indexDynamicInput = splittedSample.Select((c, i) => new { c, i }).Where(c => c.c.ToString().StartsWith("{") && c.c.EndsWith("}") && !c.c.StartsWith("{{") && !c.c.EndsWith("}}") ).Select(c => c.i); //splittedSample.Where((c,i) => c.StartsWith("{") && c.EndsWith("}") && !c.StartsWith("{{") && !c.EndsWith("}}")).Select((c,i)=> i).ToArray();
+
+
+            object [] parameterArgs;
+            List<object> parameters = new List<object>(); ;
+            StringBuilder newLSb = new StringBuilder();
+            string tempLine = "";
+            foreach (string line in lines)
+            {
+                parameters.Clear();
+                if (!string.IsNullOrEmpty(line))
+                {
+                    var charsToremove = vm.CharsToRemove.Split(',');
+
+                    newLSb.Clear();
+                    newLSb.AppendLine(line);
+                    foreach (var c in charsToremove)
+                    {
+                        newLSb = newLSb.Replace(c.ToString(), "");
+                    }
+                    var stringSPlit = newLSb.ToString().Split(Convert.ToChar(vm.Splitter));
+             
+
+                    foreach (var param in indexDynamicInput)
+                    {
+                        var type = GetDataType(stringSPlit[param]);
+                        if (vm.IsConvertDatatype && !string.IsNullOrEmpty(type))
+                            parameters.Add(type);
+                        else parameters.Add(stringSPlit[param]);
+                    }
+                    parameterArgs = parameters.ToArray();
+
+                    if (stringSPlit.Any() && stringSPlit[0] != null)
+                    {
+                      
+                        string newString = string.Format(vm.StringMake, parameterArgs);
+
+                        stringBuilder.AppendLine(newString);
+                    }
+                }
+
+
+            }
+
+            return stringBuilder.ToString();
+        }
+
         public string GetDataType(string type)
         {
-            string datatype = CSDataTypeStrings.String;
+            string datatype = "";
 
             switch (type)
             {
@@ -70,6 +129,7 @@ namespace StringReplacer.Service
                     datatype = CSDataTypeStrings.Int;
                     break;
                 case SQLDataTypeStrings.nvarchar:
+                case SQLDataTypeStrings.varchar:
                     datatype = CSDataTypeStrings.String;
                     break;
                 case SQLDataTypeStrings.datetime:
@@ -84,18 +144,15 @@ namespace StringReplacer.Service
                 case SQLDataTypeStrings.unique:
                     datatype = CSDataTypeStrings.guid;
                     break;
+                case SQLDataTypeStrings.Decimal:
+                    datatype = CSDataTypeStrings.Decimal;
+                    break;
+                case SQLDataTypeStrings.Float:
+                    datatype = CSDataTypeStrings.Float;
+                    break;
             }
             return datatype;
         }
 
-        //public List<SelectListItem> GetAllReplacerTypes()
-        //{
-        //    List<SelectListItem> selectLists = new List<SelectListItem>()
-        //    {
-        //         new SelectListItem() { Text = "SQL Table to CS Class", Value = "1" }
-        //    };
-
-        //    return selectLists;
-        //}
     }
 }

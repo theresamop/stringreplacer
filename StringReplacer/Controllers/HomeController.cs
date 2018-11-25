@@ -32,8 +32,8 @@ namespace StringReplacer.Controllers
             var key = Guid.NewGuid().ToString();
             var filename = string.Format("mystringreplacer.txt");
             StringReplacerService stringReplacerService = new StringReplacerService();
-            //vm.ReplacerType  = 1;
-            vm.FilePathInput = @"C:\Users\dell\Desktop\stringReplacer\s.txt";
+            vm.ReplacerType  = 1;
+            vm.FilePathInput = @"C:\Users\dell\Desktop\stringReplacer\s.txt"; //vm.FilePathInput;
 
             content = stringReplacerService.ProcessString(vm);
 
